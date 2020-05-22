@@ -1,0 +1,14 @@
+# build products
+build-*/
+Release/
+Mac_Release/
+Package/
+Installer/
+*.pro.user
+
+# Test items
+GITLESS*
+
+# Mac finder footprint
+.DS_Store
+
