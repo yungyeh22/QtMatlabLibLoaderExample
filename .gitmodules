@@ -1,6 +1,6 @@
 [submodule "Util/DynamicLinkLib"]
 	path = Util/DynamicLinkLib
-	url = https://github.com/yungyeh22/DynamicLinkLib_Qt
+url=https://github.com/yungyeh22/DynamicLinkLib
 [submodule "Matlab"]
 	path = Matlab
 	url = https://github.com/yungyeh22/MATLAB_C_Dynamic_Loader
