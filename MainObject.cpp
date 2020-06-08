@@ -20,10 +20,11 @@ void MainObject::run() {
                   << "\"" << std::endl;
         if (MLibs::instance().mxEngine().loadLib() && MLibs::instance().mxMatrix().loadLib()) {
             std::cout << "MATALB engine library loaded!" << std::endl;
+            std::cout << "\nStart task - Generating a strong password...\n"  << std::endl;
             runCommand();
-            std::cout << "Done." << std::endl;
+            std::cout << "Task completed."  << std::endl;
             MLibs::instance().mxEngine().unloadLib();
-            MLibs::instance().mxMatrix().unloadLib();
+            MLibs::instance().mxMatrix().unloadLib();            
         }
         else {
             std::cout << "Failed to load MATALB engine library!" << std::endl;
@@ -43,17 +44,29 @@ int MainObject::runCommand() {
     GET_FP(MLibs::instance().mxMatrix().lib(),mxArrayToString,mxArrayToString)
     GET_FP(MLibs::instance().mxMatrix().lib(),mxDestroyArray,mxDestroyArray)
     int engineId = 0;
-    std::cout << "Summon MATLAB computational engine..." << std::endl;
+    std::cout << "\tSummon MATLAB computational engine..." << std::endl;
     MInterface eng = MManager::instance().getEngineById(engineId);
-    std::cout << "Let's use MATLAB to generat a strong password" << std::endl;
+    std::cout << "\tLet's use MATLAB to generat a strong password" << std::endl;
     eng.runCommand("rng(round(second(datetime('now'))));r = floor(rand(1,16)*93)+33;password=char(r);");
-    std::cout << "Done! Retriving output from MATLAB computational engine...." << std::endl;
+    std::cout << "\tDone! Retriving output from MATLAB computational engine...." << std::endl;
     mxArray* mPassword = eng.getVar("password");
-    std::string password = mxArrayToString(mPassword);
-    mxDestroyArray(mPassword);
-    std::cout << "Generated password: " << password << std::endl;
-    std::cout << "Task completed."  << std::endl;
-    std::cout << "Closing MATLAB engine..." << std::endl;
+    std::string password = mxArrayToString(mPassword);    
+    std::cout << "\tGenerated password: " << password << std::endl;
+    std::cout << "\tClosing MATLAB engine..." << std::endl;
     MManager::instance().deleteEngineById(engineId);
+    std::cout << "\tPreparing to save the password to a MAT file \"savedPassword.mat\"..." << std::endl;
+    if (MLibs::instance().mxMat().loadLib()) { // Save the output to a MAT file
+        GET_FP(MLibs::instance().mxMat().lib(),matOpen,matOpen)
+        GET_FP(MLibs::instance().mxMat().lib(),matPutVariable,matPutVariable)
+        GET_FP(MLibs::instance().mxMat().lib(),matClose,matClose)
+        MATFile *pmat;
+        pmat = matOpen("savedPassword.mat","w");
+        if (pmat) {
+            matPutVariable(pmat,"password",mPassword);
+            matClose(pmat);
+        }
+        std::cout << "\tDone!" << std::endl;
+    }
+    mxDestroyArray(mPassword);
     return  0;
 }
